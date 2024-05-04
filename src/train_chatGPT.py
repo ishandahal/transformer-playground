@@ -20,3 +20,36 @@ dropout = 0.0
 
 # Use GPU if available
 devide = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+class Head(nn.Module):
+    """Single attention head"""
+
+    def __init__(self, head_size):
+        super().__init__()
+        self.head_size = head_size
+        self.query = nn.Linear(emb_dim, self.head_size, bias=False)
+        self.key = nn.Linear(emb_dim, self.head_size, bias=False)
+        self.value = nn.Linear(emb_dim, self.head_size, bias=False)
+        self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        B, T, C = x.shape  # shape of x: bxtxemb_dim
+        q = self.query(x)  # bxtxhead_size
+        k = self.key(x)  # same as above
+        v = self.value(x)  # same as above
+
+        # Computing self-attention scores
+        weights = (q @ k.transpose(1, 2)) / (
+            k.shape[-1] ** 0.5
+        )  # bxtxhead_size @ bxhead_sizext -> bxtxt
+        # Decoder only model so masking future tokens
+        weights.masked_fill_(
+            self.tril[:T, :T] == 0, float("-inf")
+        )  # slicing to length token is necessary for variable sequence length
+        weights = F.softmax(weights, dim=-1)
+        weights = self.dropout(weights)
+        # Scale the value vectors with self-attention weights
+        context = weights @ v  # bxtxhead_size
+        return context
