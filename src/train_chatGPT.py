@@ -16,6 +16,7 @@ emb_dim = 64
 num_iters = 5000
 eval_iters = 200
 max_output_size = 1500
+lr = 0.001
 dropout = 0.0
 
 # Use GPU if available
@@ -202,8 +203,9 @@ class LanguageModel(nn.Module):
 
 if __name__ == "__main__":
     model = LanguageModel()
+    model = model.to(device)
     optim = torch.optim.AdamW(
-        model.parameters(), lr=0.001
+        model.parameters(), lr=lr
     )  # , betas=(0.9, 0.99), eps=1e-8)
 
     # print(generate())
