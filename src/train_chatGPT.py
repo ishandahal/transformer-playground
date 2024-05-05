@@ -44,6 +44,19 @@ decode = lambda i: "".join([itos[idx] for idx in i])
 data = torch.tensor(encode(text), dtype=torch.long)
 
 
+def train_test_split(data, test_pct=0.1):
+    """Split data to train and test at a given percentage"""
+    data_size = len(data)
+    num_test_samples = int(data_size * test_pct)
+    test_data = data[-num_test_samples:]
+    train_data = data[: data_size - num_test_samples]
+    return train_data, test_data
+
+
+# Split data
+train_data, test_data = train_test_split(data)
+
+
 class Head(nn.Module):
     """Single attention head"""
 
