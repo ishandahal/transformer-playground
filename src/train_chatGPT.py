@@ -40,6 +40,9 @@ itos = {idx: char for char, idx in stoi.items()}
 encode = lambda s: [stoi[char] for char in s]
 decode = lambda i: "".join([itos[idx] for idx in i])
 
+# Tokenize all text
+data = torch.tensor(encode(text), dtype=torch.long)
+
 
 class Head(nn.Module):
     """Single attention head"""
