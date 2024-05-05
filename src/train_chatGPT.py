@@ -71,3 +71,19 @@ class MultiHeadedAttention(nn.Module):
         # Linear projection
         out = self.dropout(self.proj(grouped_attention_weights))
         return out  # bxtxhead_size*4
+
+
+class LinearLayer(nn.Module):
+    """FeedForward layer"""
+
+    def __init__(self, emb_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(emb_dim, 4 * emb_dim),
+            nn.ReLU(),
+            nn.Linear(4 * emb_dim, emb_dim),
+            nn.Dropout(dropout),
+        )
+
+    def forward(self, x):
+        return self.net(x)
