@@ -198,3 +198,26 @@ class LanguageModel(nn.Module):
             # Logits tranformed to b*t x vocab_size
             loss = F.cross_entropy(logits.view(-1, logits.shape[-1]), targets.view(-1))
         return logits, loss
+
+
+if __name__ == "__main__":
+    model = LanguageModel()
+    optim = torch.optim.AdamW(
+        model.parameters(), lr=0.001
+    )  # , betas=(0.9, 0.99), eps=1e-8)
+
+    # print(generate())
+    for i in range(num_iters):
+        # x, y = get_batch(train_data, batch_size=batch_size, block_size=block_size)
+        x, y = get_batch(train_data)
+        logits, loss = model(x, y)
+        loss.backward()
+        if not (i % 100):
+            # print(f'{loss.item()=:.4f}')
+            out = evaluate(model)
+            print(
+                f'step {i}: avg training loss: {out["train"]:.4f} | avg val loss: {out["test"]:.4f}'
+            )
+
+        optim.step()
+        optim.zero_grad()
