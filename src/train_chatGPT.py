@@ -21,6 +21,14 @@ dropout = 0.0
 # Use GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+# Download data in not already
+# !wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
+
+with open("input.txt", "r", encoding="utf-8") as file:
+    text = file.read()
+
+print(f"Total number of characters in the dataset: {len(text)}")
+
 
 class Head(nn.Module):
     """Single attention head"""
