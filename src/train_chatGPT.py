@@ -89,3 +89,21 @@ class LinearLayer(nn.Module):
 
     def forward(self, x):
         return self.net(x)
+
+
+class Block(nn.Module):
+    """Multiheaded-attention followed by FeedForward layer"""
+
+    def __init__(self, head_size):
+        super().__init__()
+        self.head_size = head_size
+        self.multi_headed_attention = MultiHeadedAttention(self.head_size)
+        self.ff = LinearLayer(emb_dim)
+        self.ln1 = nn.LayerNorm(emb_dim)
+        self.ln2 = nn.LayerNorm(emb_dim)
+
+    def forward(self, x):
+        # skip connections & layer norm
+        x = x + self.multi_headed_attention(self.ln1(x))
+        x = x + self.ff(self.ln2(x))
+        return x
