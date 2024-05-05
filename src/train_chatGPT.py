@@ -53,3 +53,21 @@ class Head(nn.Module):
         # Scale the value vectors with self-attention weights
         context = weights @ v  # bxtxhead_size
         return context
+
+
+class MultiHeadedAttention(nn.Module):
+    def __init__(self, head_size):
+        super().__init__()
+        self.head_size = head_size
+        self.heads = nn.ModuleList(Head(self.head_size) for _ in range(num_heads))
+        self.proj = nn.Linear(self.head_size * 4, self.head_size * 4)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        # Concatenate context vector for all heads
+        grouped_attention_weights = torch.cat(
+            [head(x) for head in self.heads], dim=-1
+        )  # bxtxhead_size
+        # Linear projection
+        out = self.dropout(self.proj(grouped_attention_weights))
+        return out  # bxtxhead_size*4
