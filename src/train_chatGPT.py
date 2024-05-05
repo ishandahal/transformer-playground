@@ -107,3 +107,33 @@ class Block(nn.Module):
         x = x + self.multi_headed_attention(self.ln1(x))
         x = x + self.ff(self.ln2(x))
         return x
+
+
+class LanguageModel(nn.Module):
+    """Language model with given number of transformer blocks"""
+
+    def __init__(self):
+        super().__init__()
+        self.head_size = emb_dim // num_heads
+        self.token_embedding_table = nn.Embedding(vocab_size, emb_dim)
+        self.positional_embedding_table = nn.Embedding(block_size, emb_dim)
+        self.transformer_blocks = nn.Sequential(
+            *[Block(self.head_size) for _ in range(n_layers)]
+        )
+        self.ln_f = nn.LayerNorm(emb_dim)
+        self.linear = nn.Linear(emb_dim, vocab_size)
+
+    def forward(self, x, targets=None):
+        B, T = x.shape
+        tok_emb = self.token_embedding_table(x)
+        pos_emb = self.positional_embedding_table(torch.arange(T, device=device))
+        x = tok_emb + pos_emb
+        output = self.transformer_blocks(x)
+        output = self.ln_f(output)
+        logits = self.linear(output)
+
+        loss = None
+        if targets is not None:
+            # Logits tranformed to b*t x vocab_size
+            loss = F.cross_entropy(logits.view(-1, logits.shape[-1]), targets.view(-1))
+        return logits, loss
