@@ -68,6 +68,21 @@ def get_batch(data):
     return x, y
 
 
+@torch.no_grad()
+def evaluate(model):
+    out = {}
+    model.eval()
+    for split in ["train", "test"]:
+        losses = torch.zeros((eval_iters))
+        for i in range(eval_iters):
+            x, y = get_batch(train_data)
+            logits, loss = model(x, y)
+            losses[i] = loss.item()
+        out[split] = losses.mean()
+    model.train()
+    return out
+
+
 class Head(nn.Module):
     """Single attention head"""
 
