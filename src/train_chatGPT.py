@@ -200,10 +200,33 @@ class LanguageModel(nn.Module):
             loss = F.cross_entropy(logits.view(-1, logits.shape[-1]), targets.view(-1))
         return logits, loss
 
+    @staticmethod
+    @torch.no_grad()
+    def generate(idx, max_output_size=50):
+        """Generate output"""
+        for _ in range(max_output_size):
+            prompt_trimmed_tnsr = idx[:, -block_size:]
+            logits, _ = model(prompt_trimmed_tnsr)
+            probs = F.softmax(logits[:, -1, :], dim=1)
+            next_tok = torch.multinomial(probs, 1, replacement=True)
+            idx = torch.cat((idx, next_tok), dim=1)
+        return idx
+
 
 if __name__ == "__main__":
     model = LanguageModel()
     model = model.to(device)
+
+    # Start with single token (new line character)
+    prompt_idx = torch.zeros((1, 1), dtype=torch.long, device=device)
+    # Output before training the model
+    print("============ Model output before training: ============")
+    output_idices = model.generate(prompt_idx, max_output_size=max_output_size)
+    # Print generated text
+    print(decode(output_idices[0].tolist()))
+    print("=======================================================")
+
+    # Initialize optimizer
     optim = torch.optim.AdamW(
         model.parameters(), lr=lr
     )  # , betas=(0.9, 0.99), eps=1e-8)
@@ -223,3 +246,9 @@ if __name__ == "__main__":
 
         optim.step()
         optim.zero_grad()
+
+    # Prompt the model after training
+    output_idices = model.generate(prompt_idx, max_output_size=max_output_size)
+    print("============ Model output after training: ============")
+    # Print generated text
+    print(decode(output_idices[0].tolist()))
