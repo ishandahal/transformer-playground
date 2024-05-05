@@ -186,8 +186,8 @@ class LanguageModel(nn.Module):
         self.linear = nn.Linear(emb_dim, vocab_size)
 
     def forward(self, x, targets=None):
-        B, T = x.shape
-        tok_emb = self.token_embedding_table(x)
+        B, T = x.shape  # batch_size x block_size
+        tok_emb = self.token_embedding_table(x)  # batch_size x block_size x emb_dim
         pos_emb = self.positional_embedding_table(torch.arange(T, device=device))
         x = tok_emb + pos_emb
         output = self.transformer_blocks(x)
