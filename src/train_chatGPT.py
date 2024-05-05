@@ -57,6 +57,17 @@ def train_test_split(data, test_pct=0.1):
 train_data, test_data = train_test_split(data)
 
 
+def get_batch(data):
+    """Get a batch of data for appropriate device type"""
+    # Get  batch_size of  indices which will be the start of sequence
+    # Ensure that indices start before the length of data - block_size to prevent out of bounds error
+    idx = torch.randint(len(data) - block_size, (batch_size,))
+    x = torch.stack([data[i : i + block_size] for i in idx])
+    y = torch.stack([data[i + 1 : i + block_size + 1] for i in idx])
+    x, y = x.to(device), y.to(device)
+    return x, y
+
+
 class Head(nn.Module):
     """Single attention head"""
 
