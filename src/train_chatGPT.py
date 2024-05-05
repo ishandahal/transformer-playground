@@ -22,10 +22,13 @@ dropout = 0.0
 # Use GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Download data in not already
+# Download data if not already by running following command in the command line
 # !wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
 
-with open("input.txt", "r", encoding="utf-8") as file:
+# Read file as user input
+path_to_data = input("Enter file path: ")
+
+with open(path_to_data, "r", encoding="utf-8") as file:
     text = file.read()
 
 print(f"Total number of characters in the dataset: {len(text)}")
@@ -221,7 +224,7 @@ if __name__ == "__main__":
     prompt_idx = torch.zeros((1, 1), dtype=torch.long, device=device)
     # Output before training the model
     print("============ Model output before training: ============")
-    output_idices = model.generate(prompt_idx, max_output_size=max_output_size)
+    output_idices = model.generate(prompt_idx)
     # Print generated text
     print(decode(output_idices[0].tolist()))
     print("=======================================================")
