@@ -56,6 +56,8 @@ class Head(nn.Module):
 
 
 class MultiHeadedAttention(nn.Module):
+    """Multiheaded-attention module"""
+
     def __init__(self, head_size):
         super().__init__()
         self.head_size = head_size
