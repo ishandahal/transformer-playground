@@ -19,7 +19,7 @@ max_output_size = 1500
 dropout = 0.0
 
 # Use GPU if available
-devide = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class Head(nn.Module):
