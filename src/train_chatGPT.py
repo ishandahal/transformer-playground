@@ -203,13 +203,14 @@ class LanguageModel(nn.Module):
             loss = F.cross_entropy(logits.view(-1, logits.shape[-1]), targets.view(-1))
         return logits, loss
 
-    @staticmethod
+    # @staticmethod
     @torch.no_grad()
-    def generate(idx, max_output_size=50):
+    def generate(self, idx, max_output_size=50):
         """Generate output"""
+        self.eval()
         for _ in range(max_output_size):
             prompt_trimmed_tnsr = idx[:, -block_size:]
-            logits, _ = model(prompt_trimmed_tnsr)
+            logits, _ = self(prompt_trimmed_tnsr)
             probs = F.softmax(logits[:, -1, :], dim=1)
             next_tok = torch.multinomial(probs, 1, replacement=True)
             idx = torch.cat((idx, next_tok), dim=1)
@@ -237,6 +238,7 @@ if __name__ == "__main__":
     # print(generate())
     for i in range(num_iters):
         # x, y = get_batch(train_data, batch_size=batch_size, block_size=block_size)
+        model.train()
         x, y = get_batch(train_data)
         logits, loss = model(x, y)
         loss.backward()
