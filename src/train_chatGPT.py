@@ -29,6 +29,17 @@ with open("input.txt", "r", encoding="utf-8") as file:
 
 print(f"Total number of characters in the dataset: {len(text)}")
 
+# All unique characters in the text
+chars = sorted(list(set(text)))
+vocab_size = len(chars)
+
+# Character level tokenizer
+stoi = {char: idx for idx, char in enumerate(chars)}
+itos = {idx: char for char, idx in stoi.items()}
+
+encode = lambda s: [stoi[char] for char in s]
+decode = lambda i: "".join([itos[idx] for idx in i])
+
 
 class Head(nn.Module):
     """Single attention head"""
