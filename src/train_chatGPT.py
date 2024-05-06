@@ -209,12 +209,17 @@ class LanguageModel(nn.Module):
     @torch.no_grad()
     def generate(self, idx, max_output_size=50):
         """Generate output"""
+        # Set model in eval model
         self.eval()
         for _ in range(max_output_size):
-            prompt_trimmed_tnsr = idx[:, -block_size:]
-            logits, _ = self(prompt_trimmed_tnsr)
-            probs = F.softmax(logits[:, -1, :], dim=1)
+            # Trim input to at most block_size
+            prompt_trimmed_tnsr = idx[:, -block_size:]  # batch x block_size
+            logits, _ = self(prompt_trimmed_tnsr)  # batch x token x vocab_size
+            # Pluck out logits for last token
+            probs = F.softmax(logits[:, -1, :], dim=1)  # batch x vocab_size
+            # Sample one token
             next_tok = torch.multinomial(probs, 1, replacement=True)
+            # Concatenate token to input stream
             idx = torch.cat((idx, next_tok), dim=1)
         return idx
 
@@ -239,13 +244,11 @@ if __name__ == "__main__":
 
     # print(generate())
     for i in range(num_iters):
-        # x, y = get_batch(train_data, batch_size=batch_size, block_size=block_size)
         model.train()
         x, y = get_batch(train_data)
         logits, loss = model(x, y)
         loss.backward()
         if not (i % 100):
-            # print(f'{loss.item()=:.4f}')
             out = evaluate(model)
             print(
                 f'step {i}: avg training loss: {out["train"]:.4f} | avg val loss: {out["test"]:.4f}'
