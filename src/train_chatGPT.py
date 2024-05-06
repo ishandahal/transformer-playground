@@ -6,6 +6,7 @@ Implementation closely mirrors https://github.com/karpathy/nanoGPT/blob/master/m
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import sys
 
 # Hyper-parameters
 block_size = 64
@@ -26,7 +27,8 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # !wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
 
 # Read file as user input
-path_to_data = input("Enter file path: ")
+path_to_data = sys.argv[1]
+print(path_to_data)
 
 with open(path_to_data, "r", encoding="utf-8") as file:
     text = file.read()
